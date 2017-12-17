@@ -14,3 +14,7 @@
 
 # ...even if they are in subdirectories
 !*/
+
+# But finally ignore those
+virtual_environment/
+data/
