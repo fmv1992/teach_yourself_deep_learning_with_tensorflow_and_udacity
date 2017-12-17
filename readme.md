@@ -12,6 +12,6 @@ Further references here:
 
 Thanks Google and Udacity for providing such a high quality content for free.
 
-## Roadmap
+## Course Roadmap
 
-![]()
+![Course roadmap.](https://github.com/fmv1992/teach_yourself_deep_learning_with_tensorflow_and_udacity/blob/master/pictures/roadmap.png)
