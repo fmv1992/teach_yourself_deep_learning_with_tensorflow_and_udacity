@@ -1,4 +1,5 @@
 """My modified file for the ./1_notmnist.ipynb file."""
+
 # Deep Learning =============
 #
 # Assignment 1 ------------
@@ -12,8 +13,6 @@
 # like the classic [MNIST](http://yann.lecun.com/exdb/mnist/) dataset, while
 # looking a little more like real data: it's a harder task, and the data is a
 # lot less 'clean' than MNIST.
-
-# In[ ]:
 
 # These are all the modules we'll be using later. Make sure you can import them
 # before proceeding further.
@@ -29,6 +28,8 @@ from sklearn.linear_model import LogisticRegression
 from six.moves.urllib.request import urlretrieve
 from six.moves import cPickle as pickle
 
+import google_course_library as gcl
+
 # Config the matplotlib backend as plotting inline in IPython
 # get_ipython().magic('matplotlib inline')
 
@@ -38,11 +39,8 @@ from six.moves import cPickle as pickle
 # the testset 19000 labeled examples. Given these sizes, it should be possible
 # to train models quickly on any machine.
 
-# In[ ]:
-
 url = 'https://commondatastorage.googleapis.com/books1000/'
 last_percent_reported = None
-data_root = '.'  # Change me to store data elsewhere
 
 
 def download_progress_hook(count, blockSize, totalSize):
@@ -67,7 +65,7 @@ def download_progress_hook(count, blockSize, totalSize):
 
 def maybe_download(filename, expected_bytes, force=False):
     """Download a file if not present, and make sure it's the right size."""
-    dest_filename = os.path.join(data_root, filename)
+    dest_filename = os.path.join(gcl.DATA_PATH, filename)
     if force or not os.path.exists(dest_filename):
         print('Attempting to download:', filename)
         filename, _ = urlretrieve(
@@ -90,8 +88,6 @@ test_filename = maybe_download('notMNIST_small.tar.gz', 8458043)
 # Extract the dataset from the compressed .tar.gz file.
 # This should give you a set of directories, labeled A through J.
 
-# In[ ]:
-
 num_classes = 10
 np.random.seed(133)
 
@@ -109,7 +105,7 @@ def maybe_extract(filename, force=False):
             root)
         tar = tarfile.open(filename)
         sys.stdout.flush()
-        tar.extractall(data_root)
+        tar.extractall(gcl.DATA_PATH)
         tar.close()
     data_folders = [
         os.path.join(root, d) for d in sorted(os.listdir(root))
@@ -123,6 +119,8 @@ def maybe_extract(filename, force=False):
 
 train_folders = maybe_extract(train_filename)
 test_folders = maybe_extract(test_filename)
+
+raise Exception
 
 # --- Problem 1 ---------
 #
@@ -309,7 +307,7 @@ valid_dataset, valid_labels = randomize(valid_dataset, valid_labels)
 
 # In[ ]:
 
-pickle_file = os.path.join(data_root, 'notMNIST.pickle')
+pickle_file = os.path.join(gcl.DATA_PATH, 'notMNIST.pickle')
 
 try:
     f = open(pickle_file, 'wb')

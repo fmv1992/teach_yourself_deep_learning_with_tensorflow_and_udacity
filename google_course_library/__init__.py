@@ -15,7 +15,7 @@ def get_root_dir_based_on_dotgit(path):
     return os.path.abspath(_this_folder)
 
 
-ROOT_PATH = get_root_dir_based_on_dotgit()
+ROOT_PATH = get_root_dir_based_on_dotgit(__file__)
 DATA_PATH = os.path.join(ROOT_PATH, 'data')
 
 assert os.path.exists(ROOT_PATH)
