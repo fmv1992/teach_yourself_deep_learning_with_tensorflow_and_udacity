@@ -17,8 +17,10 @@
 # These are all the modules we'll be using later. Make sure you can import them
 # before proceeding further.
 from __future__ import print_function
+
+import glob
+import random
 import imageio
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import sys
@@ -27,6 +29,9 @@ import tarfile
 from sklearn.linear_model import LogisticRegression
 from six.moves.urllib.request import urlretrieve
 from six.moves import cPickle as pickle
+
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 import google_course_library as gcl
 
@@ -96,9 +101,10 @@ def maybe_extract(filename, force=False):
     root = os.path.splitext(os.path.splitext(filename)[0])[0]  # remove .tar.gz
     if os.path.isdir(root) and not force:
         # You may override by setting force=True.
-        print(
-            '%s already present - Skipping extraction of %s.' %
-            (root, filename))
+        # print(
+        #     '%s already present - Skipping extraction of %s.' %
+        #     (root, filename))
+        pass
     else:
         print(
             'Extracting data for %s. This may take a while. Please wait.' %
@@ -114,14 +120,13 @@ def maybe_extract(filename, force=False):
         raise Exception(
             'Expected %d folders, one per class. Found %d instead.' % (
                 num_classes, len(data_folders)))
-    print(data_folders)
+    # print(data_folders)
     return data_folders
 
 train_folders = maybe_extract(train_filename)
 test_folders = maybe_extract(test_filename)
 
-raise Exception
-
+# PROBLEM 1
 # --- Problem 1 ---------
 #
 # Let's take a peek at some of the data to make sure it looks sensible. Each
@@ -130,6 +135,18 @@ raise Exception
 # you can use the package IPython.display.
 #
 # ---
+### all_png_files = glob.glob(os.path.join(gcl.DATA_PATH, '**' + os.sep + '*.png'),
+###                       recursive=True)
+### for png_f in random.sample(all_png_files, 10):
+###     fig = plt.figure()
+###     timer = fig.canvas.new_timer(interval=1000)
+###     timer.add_callback(plt.close)
+###     img = mpimg.imread(png_f)
+###     timer.start()
+###     plt.imshow(img)
+###     plt.show()
+###     del img
+### del img, timer, fig
 
 # Now let's load the data in a more manageable format. Since, depending on your
 # computer setup you might not be able to fit it all in memory, we'll load each
@@ -142,8 +159,6 @@ raise Exception
 # standard deviation ~0.5 to make training easier down the road.
 #
 # A few images might not be readable, we'll just skip them.
-
-# In[ ]:
 
 image_size = 28  # Pixel width and height.
 pixel_depth = 255.0  # Number of levels per pixel.
@@ -205,17 +220,38 @@ def maybe_pickle(data_folders, min_num_images_per_class, force=False):
 train_datasets = maybe_pickle(train_folders, 45000)
 test_datasets = maybe_pickle(test_folders, 1800)
 
+# PROBLEM 2
 # --- Problem 2 ---------
 #
 # Let's verify that the data still looks good. Displaying a sample of the
 # labels and images from the ndarray. Hint: you can use matplotlib.pyplot.
 #
 # ---
+train_dict = dict()
+for train_letter in train_datasets:
+    letter = train_letter.strip('.pickle')[-1].lower()
+    with open(train_letter, 'rb') as f:
+        train_dict[letter] = pickle.load(f)
 
+keys = np.random.choice(list(train_dict.keys()), size=10, replace=True)
+for key in keys:
+    letter_array = train_dict[key]
+    gcl.plot_timed_sample_from_array(letter_array, n=1)
+raise Exception
+
+
+# PROBLEM 3
 # --- Problem 3 --------- Another check: we expect the data to be balanced
 # across classes. Verify that.
 #
 # ---
+
+def check_dictionary_is_balanced(mydict):
+    for one_class in mydict.keys():
+        print('{0} class has {1} elements.'.format(one_class,
+                                                len(mydict[one_class])))
+
+check_dictionary_is_balanced(train_dict)
 
 # Merge and prune the training data as needed. Depending on your computer
 # setup, you might not be able to fit it all in memory, and you can tune
@@ -223,8 +259,6 @@ test_datasets = maybe_pickle(test_folders, 1800)
 # integers 0 through 9.
 #
 # Also create a validation dataset for hyperparameter tuning.
-
-# In[ ]:
 
 def make_arrays(nb_rows, img_size):
     if nb_rows:
@@ -284,8 +318,6 @@ print('Testing:', test_dataset.shape, test_labels.shape)
 # Next, we'll randomize the data. It's important to have the labels well
 # shuffled for the training and test distributions to match.
 
-# In[ ]:
-
 def randomize(dataset, labels):
     permutation = np.random.permutation(labels.shape[0])
     shuffled_dataset = dataset[permutation, :, :]
@@ -303,10 +335,8 @@ valid_dataset, valid_labels = randomize(valid_dataset, valid_labels)
 #
 # ---
 
-# Finally, let's save the data for later reuse:
 
-# In[ ]:
-
+import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
 pickle_file = os.path.join(gcl.DATA_PATH, 'notMNIST.pickle')
 
 try:
