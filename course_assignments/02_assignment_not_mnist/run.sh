@@ -1,5 +1,6 @@
 #! /bin/bash
 
+# Add 'google_course_library' to python path.
 export PYTHONPATH=$PYTHONPATH:$(readlink -f ../../)
-echo $PYTHONPATH
+
 ../../virtual_environment/google_dl/bin/python3 ./1_notmnist.py
