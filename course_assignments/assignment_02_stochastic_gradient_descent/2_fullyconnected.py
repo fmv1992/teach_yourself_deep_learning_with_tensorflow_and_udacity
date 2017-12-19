@@ -26,12 +26,12 @@ import tensorflow as tf
 from six.moves import cPickle as pickle
 from six.moves import range
 
+import google_course_library as gcl
+
 # First reload the data we generated in `1_notmnist.ipynb`.
 
 
-pickle_file = 'notMNIST.pickle'
-
-with open(pickle_file, 'rb') as f:
+with open(gcl.DATASET_PICKLE_FILE, 'rb') as f:
     save = pickle.load(f)
     train_dataset = save['train_dataset']
     train_labels = save['train_labels']
