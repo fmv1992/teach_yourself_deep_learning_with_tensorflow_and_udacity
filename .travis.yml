@@ -1,0 +1,22 @@
+# Build vim from source with python3 support and execute tests.
+branches:
+  only:
+    - travis
+python:
+    - "3.6"
+before_install:
+    # Change the default shell for makefiles.
+    - export SHELL=/bin/bash
+
+    # Change from dash to bash.
+    - sudo rm /bin/sh
+    - sudo ln -s /bin/bash /bin/sh
+
+    # Reinstall pip3 otherwise will get errors.
+    - sudo apt-get remove python3-pip
+    - sudo apt-get install python3-pip
+
+    - sudo apt install python3-dev
+
+install: SHELL=/bin/bash make install
+script: SHELL=/bin/bash make run
