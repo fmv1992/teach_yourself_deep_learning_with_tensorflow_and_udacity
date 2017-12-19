@@ -1,0 +1,8 @@
+# Build vim from source with python3 support and execute tests.
+branches:
+  only:
+    - dev
+before_install:
+    - sudo apt install python3-dev
+install: make install
+script: make run
