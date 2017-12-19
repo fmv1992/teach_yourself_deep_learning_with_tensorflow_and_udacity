@@ -3,7 +3,7 @@
 import pickle
 import os
 
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import GridSearchCV
 
 import google_course_library as gcl
@@ -11,18 +11,27 @@ import google_course_library as gcl
 OUT_PATH = os.path.join(gcl.DATA_PATH, '02_assignment_not_mnist')
 MODEL_PATH = os.path.join(OUT_PATH, 'model.pickle')
 
-PARAM_GRID = [
-    {'penalty': ['l2', ],
-     'C': [0.01, 0.1, 1., 10],
-     },
-]
+# Old grid search parameters before changing to LogisticRegressionCV.
+# PARAM_GRID = [
+#     {'penalty': ['l2', ],
+#      'C': [0.01, 0.1, 1., 10],
+#      },
+# ]
+LRCV_PARAMS = {
+    'random_state': 0,
+    'multi_class': 'multinomial',
+    'solver': 'sag',
+    'max_iter': 5000,
+    'class_weight': 'balanced',
+    'n_jobs': -2,  # Use all but one core.
+    'verbose': 3
+}
 
 
 def train_classifier(x_train, y_train):
     """Train a logistic classifier. Return the classifier."""
     if not os.path.exists(MODEL_PATH):
-        logit_clf = LogisticRegression(random_state=0)
-        clf = GridSearchCV(logit_clf, PARAM_GRID, verbose=3)
+        clf = LogisticRegressionCV(**LRCV_PARAMS)
         clf.fit(x_train, y_train)
         with open(MODEL_PATH, 'wb') as f:
             pickle.dump(clf, f)

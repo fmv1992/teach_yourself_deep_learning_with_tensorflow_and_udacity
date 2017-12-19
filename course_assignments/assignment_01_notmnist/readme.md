@@ -72,3 +72,23 @@ A logistic model was trained with grid search for hyperparameters, achieving sig
 
     Train logit score: 83.38%.
     Test logit score: 83.05%.
+
+(Output from commmit `ede2cfb6c9f6220830dfb39fa112184f3726f833`).
+
+# Improvements
+
+* Use SGD instead of GD for the logistic classifier.
+    * Results were:
+
+            Train logit score: 82.83%.
+            Test logit score: 83.22%.
+
+        Very similar to GD.
+
+    * And a training time of:
+    
+        [Parallel(n_jobs=-1)]: Done   3 out of   3 | elapsed: 63.9min finished
+
+        The time gain was not clear as in the fist run (with GD) the model used just one core.
+
+* Use embedded CV in `LogisticRegressor` to discover parameter `C`.

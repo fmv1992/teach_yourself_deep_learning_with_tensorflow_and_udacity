@@ -1,5 +1,7 @@
 """My modified file for the ./1_notmnist.ipynb file."""
 
+# pylama: ignore=E402,D103
+
 # Deep Learning =============
 #
 # Assignment 1 ------------
@@ -129,6 +131,7 @@ def maybe_extract(filename, force=False):
     # print(data_folders)
     return data_folders
 
+
 train_folders = maybe_extract(train_filename)
 test_folders = maybe_extract(test_filename)
 
@@ -142,7 +145,7 @@ test_folders = maybe_extract(test_filename)
 #
 # ---
 all_png_files = glob.glob(os.path.join(gcl.DATA_PATH, '**' + os.sep + '*.png'),
-                      recursive=True)
+                          recursive=True)
 for png_f in random.sample(all_png_files, 10):
     fig = plt.figure()
     timer = fig.canvas.new_timer(interval=1000)
@@ -168,6 +171,7 @@ plt.close('all')
 
 IMAGE_SIZE = 28  # Pixel width and height.
 PIXEL_DEPTH = 255.0  # Number of levels per pixel.
+
 
 def load_letter(folder, min_num_images):
     """Load the data for a single letter label."""
@@ -204,6 +208,7 @@ def load_letter(folder, min_num_images):
     print('Standard deviation:', np.std(dataset))
     return dataset
 
+
 def maybe_pickle(data_folders, min_num_images_per_class, force=False):
     dataset_names = []
     for folder in data_folders:
@@ -222,6 +227,7 @@ def maybe_pickle(data_folders, min_num_images_per_class, force=False):
                 print('Unable to save data to', set_filename, ':', e)
 
     return dataset_names
+
 
 train_datasets = maybe_pickle(train_folders, 45000)
 test_datasets = maybe_pickle(test_folders, 1800)
@@ -250,10 +256,12 @@ for key in keys:
 #
 # ---
 
+
 def check_dictionary_is_balanced(mydict):
     for one_class in mydict.keys():
         print('{0} class has {1} elements.'.format(one_class,
-                                                len(mydict[one_class])))
+                                                   len(mydict[one_class])))
+
 
 check_dictionary_is_balanced(train_dict)
 
@@ -264,6 +272,7 @@ check_dictionary_is_balanced(train_dict)
 #
 # Also create a validation dataset for hyperparameter tuning.
 
+
 def make_arrays(nb_rows, img_size):
     if nb_rows:
         dataset = np.ndarray((nb_rows, img_size, img_size), dtype=np.float32)
@@ -271,6 +280,7 @@ def make_arrays(nb_rows, img_size):
     else:
         dataset, labels = None, None
     return dataset, labels
+
 
 def merge_datasets(pickle_files, TRAIN_SIZE, VALID_SIZE=0):
     num_classes = len(pickle_files)
@@ -307,6 +317,7 @@ def merge_datasets(pickle_files, TRAIN_SIZE, VALID_SIZE=0):
 
     return valid_dataset, valid_labels, train_dataset, train_labels
 
+
 TRAIN_SIZE = 100000
 VALID_SIZE = 10000
 TEST_SIZE = 10000
@@ -323,11 +334,13 @@ print('Testing:', test_dataset.shape, test_labels.shape)
 # Next, we'll randomize the data. It's important to have the labels well
 # shuffled for the training and test distributions to match.
 
+
 def randomize(dataset, labels):
     permutation = np.random.permutation(labels.shape[0])
     shuffled_dataset = dataset[permutation, :, :]
     shuffled_labels = labels[permutation]
     return shuffled_dataset, shuffled_labels
+
 
 train_dataset, train_labels = randomize(train_dataset, train_labels)
 test_dataset, test_labels = randomize(test_dataset, test_labels)
