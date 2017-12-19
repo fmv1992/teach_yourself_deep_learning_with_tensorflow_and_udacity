@@ -58,6 +58,11 @@ def reformat(dataset, labels):
     return dataset, labels
 
 
+def accuracy(predictions, labels):
+    return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))
+            / predictions.shape[0])
+
+
 x_train, y_train = reformat(x_train, y_train)
 x_validation, y_validation = reformat(x_validation, y_validation)
 x_test, y_test = reformat(x_test, y_test)
@@ -65,112 +70,8 @@ print('Training set', x_train.shape, y_train.shape)
 print('Validation set', x_validation.shape, y_validation.shape)
 print('Test set', x_test.shape, y_test.shape)
 
-# We're first going to train a multinomial logistic regression using simple
-# gradient descent.
-#
-# TensorFlow works like this:
-# * First you describe the computation that you want to see performed: what the
-# inputs, the variables, and the operations look like. These get created as
-# nodes over a computation graph. This description is all contained within the
-# block below:
-#
-#       with graph.as_default():
-#           ...
-#
-# * Then you can run the operations on this graph as many times as you want by
-# calling `session.run()`, providing it outputs to fetch from the graph that
-# get returned. This runtime operation is all contained in the block below:
-#
-#       with tf.Session(graph=graph) as session:
-#           ...
-#
-# Let's load all the data into TensorFlow and build the computation graph
-# corresponding to our training:
 
-
-# With gradient descent training, even this much data is prohibitive.
-# Subset the training data for faster turnaround.
-train_subset = 10000
-
-graph = tf.Graph()
-with graph.as_default():
-
-    # Input data.
-    # Load the training, validation and test data into constants that are
-    # attached to the graph.
-    tf_train_dataset = tf.constant(x_train[:train_subset, :])
-    tf_train_labels = tf.constant(y_train[:train_subset])
-    tf_valid_dataset = tf.constant(x_validation)
-    tf_test_dataset = tf.constant(x_test)
-
-    # Variables.
-    # These are the parameters that we are going to be training. The weight
-    # matrix will be initialized using random values following a (truncated)
-    # normal distribution. The biases get initialized to zero.
-    weights = tf.Variable(
-        tf.truncated_normal([IMAGE_SIZE * IMAGE_SIZE, NUM_LABELS]))
-    biases = tf.Variable(tf.zeros([NUM_LABELS]))
-
-    # Training computation.
-    # We multiply the inputs with the weight matrix, and add biases. We compute
-    # the softmax and cross-entropy (it's one operation in TensorFlow, because
-    # it's very common, and it can be optimized). We take the average of this
-    # cross-entropy across all training examples: that's our loss.
-    logits = tf.matmul(tf_train_dataset, weights) + biases
-    loss = tf.reduce_mean(
-        tf.nn.softmax_cross_entropy_with_logits(
-            labels=tf_train_labels,
-            logits=logits))
-
-    # Optimizer.
-    # We are going to find the minimum of this loss using gradient descent.
-    optimizer = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
-
-    # Predictions for the training, validation, and test data.
-    # These are not part of training, but merely here so that we can report
-    # accuracy figures as we train.
-    train_prediction = tf.nn.softmax(logits)
-    valid_prediction = tf.nn.softmax(
-        tf.matmul(tf_valid_dataset, weights) + biases)
-    test_prediction = tf.nn.softmax(
-        tf.matmul(tf_test_dataset, weights) + biases)
-
-# Let's run this computation and iterate:
-
-
-num_steps = 801
-
-
-def accuracy(predictions, labels):
-    return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))
-            / predictions.shape[0])
-
-
-with tf.Session(graph=graph) as session:
-    # This is a one-time operation which ensures the parameters get initialized
-    # as we described in the graph: random weights for the matrix, zeros for
-    # the biases.
-    tf.global_variables_initializer().run()
-    print('Initialized')
-    for step in range(num_steps):
-        # Run the computations. We tell .run() that we want to run the
-        # optimizer, and get the loss value and the training predictions
-        # returned as numpy arrays.
-        _, l, predictions = session.run([optimizer, loss, train_prediction])
-        if (step % 100 == 0):
-            print('Loss at step %d: %f' % (step, l))
-            print('Training accuracy: %.1f%%' % accuracy(
-                predictions, y_train[:train_subset, :]))
-            # Calling .eval() on valid_prediction is basically like calling
-            # run(), but just to get that one numpy array. Note that it
-            # recomputes all its graph dependencies.
-            print('Validation accuracy: %.1f%%' % accuracy(
-                valid_prediction.eval(), y_validation))
-    print(
-        'Test accuracy: %.1f%%' %
-        accuracy(
-            test_prediction.eval(),
-            y_test))
+# Removed the logistic regression using GD.
 
 # Let's now switch to stochastic gradient descent training instead, which is
 # much faster.
@@ -183,6 +84,7 @@ with tf.Session(graph=graph) as session:
 batch_size = 128
 
 graph = tf.Graph()
+N_NEURONS = 2 * 1024
 with graph.as_default():
 
     # Input data. For the training data, we use a placeholder that will be fed
@@ -197,26 +99,40 @@ with graph.as_default():
     tf_test_dataset = tf.constant(x_test)
 
     # Variables.
-    weights = tf.Variable(
-        tf.truncated_normal([IMAGE_SIZE * IMAGE_SIZE, NUM_LABELS]))
-    biases = tf.Variable(tf.zeros([NUM_LABELS]))
+    first_weights = tf.Variable(
+        tf.truncated_normal([IMAGE_SIZE * IMAGE_SIZE, N_NEURONS]))
+    biases = tf.Variable(tf.zeros([N_NEURONS]))
 
     # Training computation.
-    logits = tf.matmul(tf_train_dataset, weights) + biases
+    dot_sum = tf.matmul(tf_train_dataset, first_weights) + biases
+    # Add the relu operation.
+    apply_relu = tf.nn.relu(dot_sum)
+
+    # Add second weights
+    second_weights = tf.Variable(
+        tf.truncated_normal([N_NEURONS, NUM_LABELS]))
+    apply_resize = tf.matmul(apply_relu, second_weights)
+
     loss = tf.reduce_mean(
         tf.nn.softmax_cross_entropy_with_logits(
             labels=tf_train_labels,
-            logits=logits))
+            logits=apply_resize))
 
     # Optimizer.
     optimizer = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
 
     # Predictions for the training, validation, and test data.
-    train_prediction = tf.nn.softmax(logits)
-    valid_prediction = tf.nn.softmax(
-        tf.matmul(tf_valid_dataset, weights) + biases)
-    test_prediction = tf.nn.softmax(
-        tf.matmul(tf_test_dataset, weights) + biases)
+    train_prediction = tf.nn.softmax(apply_resize)
+    # Prediction for test.
+    dot_sum_test = tf.matmul(tf_test_dataset, first_weights) + biases
+    apply_relu_test = tf.nn.relu(dot_sum_test)
+    apply_resize_test = tf.matmul(apply_relu_test, second_weights)
+    test_prediction = tf.nn.softmax(apply_resize_test)
+    # Prediction for validation.
+    dot_sum_valid = tf.matmul(tf_valid_dataset, first_weights) + biases
+    apply_relu_valid = tf.nn.relu(dot_sum_valid)
+    apply_resize_valid = tf.matmul(apply_relu_valid, second_weights)
+    valid_prediction = tf.nn.softmax(apply_resize_valid)
 
 # Let's run it:
 
