@@ -18,23 +18,24 @@
 # before proceeding further.
 from __future__ import print_function
 
-import itertools
 import glob
-import random
-import imageio
-import numpy as np
+import itertools
 import os
+import random
 import sys
 import tarfile
-# from IPython.display import display, Image
-from sklearn.linear_model import LogisticRegression
+
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import numpy as np
+
+import imageio
 from six.moves.urllib.request import urlretrieve
 from six.moves import cPickle as pickle
 
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
 import google_course_library as gcl
+
+import logit_classifier
 
 # Config the matplotlib backend as plotting inline in IPython
 # get_ipython().magic('matplotlib inline')
@@ -162,13 +163,13 @@ test_folders = maybe_extract(test_filename)
 #
 # A few images might not be readable, we'll just skip them.
 
-image_size = 28  # Pixel width and height.
-pixel_depth = 255.0  # Number of levels per pixel.
+IMAGE_SIZE = 28  # Pixel width and height.
+PIXEL_DEPTH = 255.0  # Number of levels per pixel.
 
 def load_letter(folder, min_num_images):
     """Load the data for a single letter label."""
     image_files = os.listdir(folder)
-    dataset = np.ndarray(shape=(len(image_files), image_size, image_size),
+    dataset = np.ndarray(shape=(len(image_files), IMAGE_SIZE, IMAGE_SIZE),
                          dtype=np.float32)
     print(folder)
     num_images = 0
@@ -176,8 +177,8 @@ def load_letter(folder, min_num_images):
         image_file = os.path.join(folder, image)
         try:
             image_data = (imageio.imread(image_file).astype(float) -
-                          pixel_depth / 2) / pixel_depth
-            if image_data.shape != (image_size, image_size):
+                          PIXEL_DEPTH / 2) / PIXEL_DEPTH
+            if image_data.shape != (IMAGE_SIZE, IMAGE_SIZE):
                 raise Exception('Unexpected image shape: %s' %
                                 str(image_data.shape))
             dataset[num_images, :, :] = image_data
@@ -256,7 +257,7 @@ check_dictionary_is_balanced(train_dict)
 
 # Merge and prune the training data as needed. Depending on your computer
 # setup, you might not be able to fit it all in memory, and you can tune
-# `train_size` as needed. The labels will be stored into a separate array of
+# `TRAIN_SIZE` as needed. The labels will be stored into a separate array of
 # integers 0 through 9.
 #
 # Also create a validation dataset for hyperparameter tuning.
@@ -269,12 +270,12 @@ def make_arrays(nb_rows, img_size):
         dataset, labels = None, None
     return dataset, labels
 
-def merge_datasets(pickle_files, train_size, valid_size=0):
+def merge_datasets(pickle_files, TRAIN_SIZE, VALID_SIZE=0):
     num_classes = len(pickle_files)
-    valid_dataset, valid_labels = make_arrays(valid_size, image_size)
-    train_dataset, train_labels = make_arrays(train_size, image_size)
-    vsize_per_class = valid_size // num_classes
-    tsize_per_class = train_size // num_classes
+    valid_dataset, valid_labels = make_arrays(VALID_SIZE, IMAGE_SIZE)
+    train_dataset, train_labels = make_arrays(TRAIN_SIZE, IMAGE_SIZE)
+    vsize_per_class = VALID_SIZE // num_classes
+    tsize_per_class = TRAIN_SIZE // num_classes
 
     start_v, start_t = 0, 0
     end_v, end_t = vsize_per_class, tsize_per_class
@@ -304,13 +305,14 @@ def merge_datasets(pickle_files, train_size, valid_size=0):
 
     return valid_dataset, valid_labels, train_dataset, train_labels
 
-train_size = 100000
-valid_size = 10000
-test_size = 10000
+TRAIN_SIZE = 100000
+VALID_SIZE = 10000
+TEST_SIZE = 10000
 
 valid_dataset, valid_labels, train_dataset, train_labels = merge_datasets(
-    train_datasets, train_size, valid_size)
-_, _, test_dataset, test_labels = merge_datasets(test_datasets, test_size)
+    train_datasets, TRAIN_SIZE, VALID_SIZE)
+_, _, test_dataset, test_labels = merge_datasets(
+    test_datasets, TEST_SIZE)
 
 print('Training:', train_dataset.shape, train_labels.shape)
 print('Validation:', valid_dataset.shape, valid_labels.shape)
@@ -374,26 +376,27 @@ print('Compressed pickle size:', statinfo.st_size)
 # Optional questions: - What about near duplicates between datasets? (images
 # that are almost identical) - Create a sanitized validation and test set, and
 # compare your accuracy on those in subsequent assignments. ---
-validation_dataset = valid_dataset
-
-train_unique = np.unique(train_dataset, axis=0)
-validation_unique = np.unique(validation_dataset, axis=0)
-test_unique = np.unique(test_dataset, axis=0)
-
-deduped_set = {'train': train_unique,
-               'test': test_unique,
-               'validation': validation_unique}
-for combination in (1, 2, 3):
-    for keys in itertools.combinations(list(deduped_set.keys()), combination):
-
-        datasets = [deduped_set[k] for k in keys]
-        total_elements = sum(map(lambda x: x.shape[0], datasets))
-        unique_intersect = np.unique(np.concatenate(datasets), axis=0).shape[0]
-
-        print('intersection {0}: has {1} unique elements out of {2} '
-              'total.'.format(keys, unique_intersect, total_elements))
-
-raise Exception
+### validation_dataset = valid_dataset
+###
+### train_unique = np.unique(train_dataset, axis=0)
+### validation_unique = np.unique(validation_dataset, axis=0)
+### test_unique = np.unique(test_dataset, axis=0)
+###
+### deduped_set = {'train': train_unique,
+###                'test': test_unique,
+###                'validation': validation_unique}
+### for combination in (1, 2, 3):
+###     for keys in itertools.combinations(list(deduped_set.keys()), combination):
+###
+###         datasets = [deduped_set[k] for k in keys]
+###         total_elements = sum(map(lambda x: x.shape[0], datasets))
+###         unique_intersect = np.unique(np.concatenate(datasets), axis=0).shape[0]
+###
+###         print('intersection {0}: has {1} unique elements out of {2} '
+###               'total.'.format(keys, unique_intersect, total_elements))
+###
+### import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
+### raise Exception
 # train_list = np.split(train_dataset, train_dataset.shape[0])
 # train_list = [np.vstack(x) for x in train_list]
 # train_unique = np.unique(train_dataset)
@@ -417,3 +420,7 @@ raise Exception
 # Optional question: train an off-the-shelf model on all the data!
 #
 # ---
+
+# You may want to change the TRAIN_SIZE, VALID_SIZE, TEST_SIZE constants to
+# train faster and check code correctness.
+logit_classifier.main(train_dataset, valid_dataset, train_labels, valid_labels)
