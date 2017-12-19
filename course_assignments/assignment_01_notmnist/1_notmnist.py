@@ -357,10 +357,8 @@ for arr in (train_dataset, test_dataset, valid_dataset):
     gcl.plot_timed_sample_from_array(arr, n=3)
 
 
-pickle_file = os.path.join(gcl.DATA_PATH, 'notMNIST.pickle')
-
 try:
-    f = open(pickle_file, 'wb')
+    f = open(gcl.DATASET_PICKLE_FILE, 'wb')
     save = {
         'train_dataset': train_dataset,
         'train_labels': train_labels,
@@ -372,10 +370,10 @@ try:
     pickle.dump(save, f, pickle.HIGHEST_PROTOCOL)
     f.close()
 except Exception as e:
-    print('Unable to save data to', pickle_file, ':', e)
+    print('Unable to save data to', gcl.DATASET_PICKLE_FILE, ':', e)
     raise
 
-statinfo = os.stat(pickle_file)
+statinfo = os.stat(gcl.DATASET_PICKLE_FILE)
 print('Compressed pickle size:', statinfo.st_size)
 
 # --- Problem 5 ---------

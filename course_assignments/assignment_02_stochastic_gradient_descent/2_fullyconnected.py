@@ -33,39 +33,37 @@ import google_course_library as gcl
 
 with open(gcl.DATASET_PICKLE_FILE, 'rb') as f:
     save = pickle.load(f)
-    train_dataset = save['train_dataset']
-    train_labels = save['train_labels']
-    valid_dataset = save['valid_dataset']
-    valid_labels = save['valid_labels']
-    test_dataset = save['test_dataset']
-    test_labels = save['test_labels']
+    x_train = save['train_dataset']
+    y_train = save['train_labels']
+    x_validation = save['valid_dataset']
+    y_validation = save['valid_labels']
+    x_test = save['test_dataset']
+    y_test = save['test_labels']
     del save  # hint to help gc free up memory
-    print('Training set', train_dataset.shape, train_labels.shape)
-    print('Validation set', valid_dataset.shape, valid_labels.shape)
-    print('Test set', test_dataset.shape, test_labels.shape)
+    print('Training set', x_train.shape, y_train.shape)
+    print('Validation set', x_validation.shape, y_validation.shape)
+    print('Test set', x_test.shape, y_test.shape)
 
 # Reformat into a shape that's more adapted to the models we're going to train:
 # - data as a flat matrix,
 # - labels as float 1-hot encodings.
-
-
-image_size = 28
-num_labels = 10
+IMAGE_SIZE = 28
+NUM_LABELS = 10
 
 
 def reformat(dataset, labels):
-    dataset = dataset.reshape((-1, image_size * image_size)).astype(np.float32)
+    dataset = dataset.reshape((-1, IMAGE_SIZE * IMAGE_SIZE)).astype(np.float32)
     # Map 0 to [1.0, 0.0, 0.0 ...], 1 to [0.0, 1.0, 0.0 ...]
-    labels = (np.arange(num_labels) == labels[:, None]).astype(np.float32)
+    labels = (np.arange(NUM_LABELS) == labels[:, None]).astype(np.float32)
     return dataset, labels
 
 
-train_dataset, train_labels = reformat(train_dataset, train_labels)
-valid_dataset, valid_labels = reformat(valid_dataset, valid_labels)
-test_dataset, test_labels = reformat(test_dataset, test_labels)
-print('Training set', train_dataset.shape, train_labels.shape)
-print('Validation set', valid_dataset.shape, valid_labels.shape)
-print('Test set', test_dataset.shape, test_labels.shape)
+x_train, y_train = reformat(x_train, y_train)
+x_validation, y_validation = reformat(x_validation, y_validation)
+x_test, y_test = reformat(x_test, y_test)
+print('Training set', x_train.shape, y_train.shape)
+print('Validation set', x_validation.shape, y_validation.shape)
+print('Test set', x_test.shape, y_test.shape)
 
 # We're first going to train a multinomial logistic regression using simple
 # gradient descent.
@@ -100,18 +98,18 @@ with graph.as_default():
     # Input data.
     # Load the training, validation and test data into constants that are
     # attached to the graph.
-    tf_train_dataset = tf.constant(train_dataset[:train_subset, :])
-    tf_train_labels = tf.constant(train_labels[:train_subset])
-    tf_valid_dataset = tf.constant(valid_dataset)
-    tf_test_dataset = tf.constant(test_dataset)
+    tf_train_dataset = tf.constant(x_train[:train_subset, :])
+    tf_train_labels = tf.constant(y_train[:train_subset])
+    tf_valid_dataset = tf.constant(x_validation)
+    tf_test_dataset = tf.constant(x_test)
 
     # Variables.
     # These are the parameters that we are going to be training. The weight
     # matrix will be initialized using random values following a (truncated)
     # normal distribution. The biases get initialized to zero.
     weights = tf.Variable(
-        tf.truncated_normal([image_size * image_size, num_labels]))
-    biases = tf.Variable(tf.zeros([num_labels]))
+        tf.truncated_normal([IMAGE_SIZE * IMAGE_SIZE, NUM_LABELS]))
+    biases = tf.Variable(tf.zeros([NUM_LABELS]))
 
     # Training computation.
     # We multiply the inputs with the weight matrix, and add biases. We compute
@@ -162,17 +160,17 @@ with tf.Session(graph=graph) as session:
         if (step % 100 == 0):
             print('Loss at step %d: %f' % (step, l))
             print('Training accuracy: %.1f%%' % accuracy(
-                predictions, train_labels[:train_subset, :]))
+                predictions, y_train[:train_subset, :]))
             # Calling .eval() on valid_prediction is basically like calling
             # run(), but just to get that one numpy array. Note that it
             # recomputes all its graph dependencies.
             print('Validation accuracy: %.1f%%' % accuracy(
-                valid_prediction.eval(), valid_labels))
+                valid_prediction.eval(), y_validation))
     print(
         'Test accuracy: %.1f%%' %
         accuracy(
             test_prediction.eval(),
-            test_labels))
+            y_test))
 
 # Let's now switch to stochastic gradient descent training instead, which is
 # much faster.
@@ -191,17 +189,17 @@ with graph.as_default():
     # at run time with a training minibatch.
     tf_train_dataset = tf.placeholder(
         tf.float32, shape=(
-            batch_size, image_size * image_size))
+            batch_size, IMAGE_SIZE * IMAGE_SIZE))
     tf_train_labels = tf.placeholder(
         tf.float32, shape=(
-            batch_size, num_labels))
-    tf_valid_dataset = tf.constant(valid_dataset)
-    tf_test_dataset = tf.constant(test_dataset)
+            batch_size, NUM_LABELS))
+    tf_valid_dataset = tf.constant(x_validation)
+    tf_test_dataset = tf.constant(x_test)
 
     # Variables.
     weights = tf.Variable(
-        tf.truncated_normal([image_size * image_size, num_labels]))
-    biases = tf.Variable(tf.zeros([num_labels]))
+        tf.truncated_normal([IMAGE_SIZE * IMAGE_SIZE, NUM_LABELS]))
+    biases = tf.Variable(tf.zeros([NUM_LABELS]))
 
     # Training computation.
     logits = tf.matmul(tf_train_dataset, weights) + biases
@@ -231,10 +229,10 @@ with tf.Session(graph=graph) as session:
     for step in range(num_steps):
         # Pick an offset within the training data, which has been randomized.
         # Note: we could use better randomization across epochs.
-        offset = (step * batch_size) % (train_labels.shape[0] - batch_size)
+        offset = (step * batch_size) % (y_train.shape[0] - batch_size)
         # Generate a minibatch.
-        batch_data = train_dataset[offset:(offset + batch_size), :]
-        batch_labels = train_labels[offset:(offset + batch_size), :]
+        batch_data = x_train[offset:(offset + batch_size), :]
+        batch_labels = y_train[offset:(offset + batch_size), :]
         # Prepare a dictionary telling the session where to feed the minibatch.
         # The key of the dictionary is the placeholder node of the graph to be
         # fed, and the value is the numpy array to feed to it.
@@ -251,12 +249,12 @@ with tf.Session(graph=graph) as session:
                     predictions,
                     batch_labels))
             print("Validation accuracy: %.1f%%" % accuracy(
-                valid_prediction.eval(), valid_labels))
+                valid_prediction.eval(), y_validation))
     print(
         "Test accuracy: %.1f%%" %
         accuracy(
             test_prediction.eval(),
-            test_labels))
+            y_test))
 
 # ---
 # Problem
