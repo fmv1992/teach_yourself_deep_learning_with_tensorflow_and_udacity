@@ -39,4 +39,10 @@ The Artificial Neural Networks (referred to as "ANN" onwards) got a better resul
     Validation accuracy: 84.4%
     **Test accuracy: 90.9%**
 
-An improvement of accuracy of **7.7%**.
+An improvement of accuracy of **7.7%**. (commit `ffbfcc1c7f1965d39ba101be8aec63a19edfe617`).
+
+I have purposefully omitted the bias in when feeding it to the output layer. With that included the new accuracy is:
+
+    Test accuracy: 90.5%
+
+Which is not an improvement :)

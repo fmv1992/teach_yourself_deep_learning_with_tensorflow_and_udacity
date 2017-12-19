@@ -101,17 +101,19 @@ with graph.as_default():
     # Variables.
     first_weights = tf.Variable(
         tf.truncated_normal([IMAGE_SIZE * IMAGE_SIZE, N_NEURONS]))
-    biases = tf.Variable(tf.zeros([N_NEURONS]))
+    first_biases = tf.Variable(tf.zeros([N_NEURONS]))
 
     # Training computation.
-    dot_sum = tf.matmul(tf_train_dataset, first_weights) + biases
+    dot_sum = tf.matmul(tf_train_dataset, first_weights) + first_biases
     # Add the relu operation.
     apply_relu = tf.nn.relu(dot_sum)
 
     # Add second weights
+
     second_weights = tf.Variable(
         tf.truncated_normal([N_NEURONS, NUM_LABELS]))
-    apply_resize = tf.matmul(apply_relu, second_weights)
+    second_biases = tf.Variable(tf.zeros([NUM_LABELS]))
+    apply_resize = tf.matmul(apply_relu, second_weights) + second_biases
 
     loss = tf.reduce_mean(
         tf.nn.softmax_cross_entropy_with_logits(
@@ -124,12 +126,12 @@ with graph.as_default():
     # Predictions for the training, validation, and test data.
     train_prediction = tf.nn.softmax(apply_resize)
     # Prediction for test.
-    dot_sum_test = tf.matmul(tf_test_dataset, first_weights) + biases
+    dot_sum_test = tf.matmul(tf_test_dataset, first_weights) + first_biases
     apply_relu_test = tf.nn.relu(dot_sum_test)
     apply_resize_test = tf.matmul(apply_relu_test, second_weights)
     test_prediction = tf.nn.softmax(apply_resize_test)
     # Prediction for validation.
-    dot_sum_valid = tf.matmul(tf_valid_dataset, first_weights) + biases
+    dot_sum_valid = tf.matmul(tf_valid_dataset, first_weights) + first_biases
     apply_relu_valid = tf.nn.relu(dot_sum_valid)
     apply_resize_valid = tf.matmul(apply_relu_valid, second_weights)
     valid_prediction = tf.nn.softmax(apply_resize_valid)
