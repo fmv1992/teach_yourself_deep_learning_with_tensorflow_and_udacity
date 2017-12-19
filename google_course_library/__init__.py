@@ -26,6 +26,7 @@ def plot_timed_sample_from_array(arr, n=10, duration_ms=1000):
         img = plt.imshow(grid, cmap='gray', vmin=grid.min(), vmax=grid.max())
         timer.start()
         plt.show()
+        plt.close('all')
 
 
 

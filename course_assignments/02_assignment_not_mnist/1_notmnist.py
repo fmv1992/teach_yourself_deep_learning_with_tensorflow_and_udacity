@@ -18,6 +18,9 @@
 # before proceeding further.
 from __future__ import print_function
 
+import matplotlib
+matplotlib.use('Qt5Agg')
+
 import glob
 import itertools
 import os
@@ -138,18 +141,18 @@ test_folders = maybe_extract(test_filename)
 # you can use the package IPython.display.
 #
 # ---
-### all_png_files = glob.glob(os.path.join(gcl.DATA_PATH, '**' + os.sep + '*.png'),
-###                       recursive=True)
-### for png_f in random.sample(all_png_files, 10):
-###     fig = plt.figure()
-###     timer = fig.canvas.new_timer(interval=1000)
-###     timer.add_callback(plt.close)
-###     img = mpimg.imread(png_f)
-###     timer.start()
-###     plt.imshow(img)
-###     plt.show()
-###     del img
-### del img, timer, fig
+all_png_files = glob.glob(os.path.join(gcl.DATA_PATH, '**' + os.sep + '*.png'),
+                      recursive=True)
+for png_f in random.sample(all_png_files, 10):
+    fig = plt.figure()
+    timer = fig.canvas.new_timer(interval=1000)
+    timer.add_callback(plt.close)
+    img = mpimg.imread(png_f)
+    timer.start()
+    plt.imshow(img)
+    plt.show()
+    del img, timer, fig
+plt.close('all')
 
 # Now let's load the data in a more manageable format. Since, depending on your
 # computer setup you might not be able to fit it all in memory, we'll load each
@@ -236,11 +239,10 @@ for train_letter in train_datasets:
     with open(train_letter, 'rb') as f:
         train_dict[letter] = pickle.load(f)
 
-### keys = np.random.choice(list(train_dict.keys()), size=10, replace=True)
-### for key in keys:
-###     letter_array = train_dict[key]
-###     gcl.plot_timed_sample_from_array(letter_array, n=1)
-
+keys = np.random.choice(list(train_dict.keys()), size=10, replace=True)
+for key in keys:
+    letter_array = train_dict[key]
+    gcl.plot_timed_sample_from_array(letter_array, n=1)
 
 # PROBLEM 3
 # --- Problem 3 --------- Another check: we expect the data to be balanced
@@ -338,8 +340,8 @@ valid_dataset, valid_labels = randomize(valid_dataset, valid_labels)
 #
 # ---
 
-### for arr in (train_dataset, test_dataset, valid_dataset):
-###     gcl.plot_timed_sample_from_array(arr, n=3)
+for arr in (train_dataset, test_dataset, valid_dataset):
+    gcl.plot_timed_sample_from_array(arr, n=3)
 
 
 pickle_file = os.path.join(gcl.DATA_PATH, 'notMNIST.pickle')
@@ -376,27 +378,25 @@ print('Compressed pickle size:', statinfo.st_size)
 # Optional questions: - What about near duplicates between datasets? (images
 # that are almost identical) - Create a sanitized validation and test set, and
 # compare your accuracy on those in subsequent assignments. ---
-### validation_dataset = valid_dataset
-###
-### train_unique = np.unique(train_dataset, axis=0)
-### validation_unique = np.unique(validation_dataset, axis=0)
-### test_unique = np.unique(test_dataset, axis=0)
-###
-### deduped_set = {'train': train_unique,
-###                'test': test_unique,
-###                'validation': validation_unique}
-### for combination in (1, 2, 3):
-###     for keys in itertools.combinations(list(deduped_set.keys()), combination):
-###
-###         datasets = [deduped_set[k] for k in keys]
-###         total_elements = sum(map(lambda x: x.shape[0], datasets))
-###         unique_intersect = np.unique(np.concatenate(datasets), axis=0).shape[0]
-###
-###         print('intersection {0}: has {1} unique elements out of {2} '
-###               'total.'.format(keys, unique_intersect, total_elements))
-###
-### import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
-### raise Exception
+validation_dataset = valid_dataset
+
+train_unique = np.unique(train_dataset, axis=0)
+validation_unique = np.unique(validation_dataset, axis=0)
+test_unique = np.unique(test_dataset, axis=0)
+
+deduped_set = {'train': train_unique,
+               'test': test_unique,
+               'validation': validation_unique}
+for combination in (1, 2, 3):
+    for keys in itertools.combinations(list(deduped_set.keys()), combination):
+
+        datasets = [deduped_set[k] for k in keys]
+        total_elements = sum(map(lambda x: x.shape[0], datasets))
+        unique_intersect = np.unique(np.concatenate(datasets), axis=0).shape[0]
+
+        print('intersection {0}: has {1} unique elements out of {2} '
+              'total.'.format(keys, unique_intersect, total_elements))
+
 # train_list = np.split(train_dataset, train_dataset.shape[0])
 # train_list = [np.vstack(x) for x in train_list]
 # train_unique = np.unique(train_dataset)
@@ -423,4 +423,5 @@ print('Compressed pickle size:', statinfo.st_size)
 
 # You may want to change the TRAIN_SIZE, VALID_SIZE, TEST_SIZE constants to
 # train faster and check code correctness.
+
 logit_classifier.main(train_dataset, valid_dataset, train_labels, valid_labels)
