@@ -1,3 +1,8 @@
 #! /bin/bash
 
-bash ./01_from_machine_learning_to_deep_learning/run.sh
+
+bash ./assignment_01_notmnist/run.sh
+
+bash ./assignment_02_stochastic_gradient_descent/run.sh
+
+bash ./assignment_03_regularization/run.sh
