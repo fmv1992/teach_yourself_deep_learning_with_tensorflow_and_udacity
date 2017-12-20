@@ -90,7 +90,7 @@ graph = tf.Graph()
 
 # Used to switch between convolution and maxpooling.
 is_convolution = False
-is_convolution = True
+# is_convolution = True
 
 with graph.as_default():
 
@@ -120,13 +120,13 @@ with graph.as_default():
         layer3_weights = tf.Variable(
             tf.truncated_normal(
                 [(IMAGE_SIZE // (2 * STRIDE_SIZE)) *
-                (IMAGE_SIZE // (2 * STRIDE_SIZE)) * depth, num_hidden],
+                 (IMAGE_SIZE // (2 * STRIDE_SIZE)) * depth, num_hidden],
                 stddev=0.1))
     else:
         layer3_weights = tf.Variable(
             tf.truncated_normal(
                 [(IMAGE_SIZE // (2 * STRIDE_SIZE)) *
-                (IMAGE_SIZE // (2 * STRIDE_SIZE)) * depth, num_hidden],
+                 (IMAGE_SIZE // (2 * STRIDE_SIZE)) * depth, num_hidden],
                 stddev=0.1))
     layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
     layer4_weights = tf.Variable(tf.truncated_normal(
@@ -163,26 +163,33 @@ with graph.as_default():
             return tf.matmul(hidden, layer4_weights) + layer4_biases
     else:
         def model(data):
+            print('data', data.shape)
             maxp = tf.nn.max_pool(
                 data,
                 [1, kernel_size, kernel_size, 1],
                 [1, STRIDE_SIZE, STRIDE_SIZE, 1],
                 padding='SAME')
+            print('maxp1', maxp.shape)
             hidden = tf.nn.relu(maxp + layer1_biases)
+            print('hid1', hidden.shape)
             maxp = tf.nn.max_pool(
-                data,
+                hidden,
                 [1, kernel_size, kernel_size, 1],
                 [1, STRIDE_SIZE, STRIDE_SIZE, 1],
                 padding='SAME')
+            print('maxp2', maxp.shape)
             hidden = tf.nn.relu(maxp + layer2_biases)
+            print('hid2', hidden.shape)
             shape = hidden.get_shape().as_list()
             print(shape)
             reshape = tf.reshape(
                 hidden, [
                     shape[0], shape[1] * shape[2] * shape[3]])
+            print('reshape', reshape.shape)
             hidden = tf.nn.relu(tf.matmul(
                 reshape, layer3_weights)
                                 + layer3_biases)
+            print('hid3', hidden.shape)
             return tf.matmul(hidden, layer4_weights) + layer4_biases
 
     # Training computation.
@@ -201,7 +208,7 @@ with graph.as_default():
     test_prediction = tf.nn.softmax(model(tf_test_dataset))
 
 
-num_steps = 1001
+num_steps = 3001
 
 with tf.Session(graph=graph) as session:
     tf.global_variables_initializer().run()
