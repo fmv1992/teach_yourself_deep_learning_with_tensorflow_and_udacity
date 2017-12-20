@@ -85,12 +85,12 @@ def accuracy(predictions, labels):
 #
 # ---
 
-# DROPOUT_KEEP_CHANCE = 1
+DROPOUT_KEEP_CHANCE = 1e-5
 BATCH_SIZE = 128
 N_NEURONS = 1024
-TRAINING_STEPS = 31
+TRAINING_STEPS = 3001
 REGULARIZATION_SCALING = float(1e-3)
-LOGGING_CYCLE = 10
+LOGGING_CYCLE = 500
 
 graph = tf.Graph()
 with graph.as_default():
@@ -110,12 +110,12 @@ with graph.as_default():
     tf_test_dataset = tf.constant(x_test)
 
     # Variables.
-    DROPOUT_KEEP_CHANCE = tf.cond(is_training,
-                                  lambda: tf.Variable(0.5),
-                                  lambda: tf.Variable(1.))
+    dropout_chance = tf.cond(is_training,
+                             lambda: tf.Variable(DROPOUT_KEEP_CHANCE),
+                             lambda: tf.Variable(1.))
     first_weights = tf.Variable(
         tf.truncated_normal([IMAGE_SIZE * IMAGE_SIZE, N_NEURONS]))
-    first_weights = tf.nn.dropout(first_weights, DROPOUT_KEEP_CHANCE)
+    first_weights = tf.nn.dropout(first_weights, dropout_chance)
 
     first_biases = tf.Variable(tf.zeros([N_NEURONS]))
 
@@ -127,7 +127,7 @@ with graph.as_default():
     # Add second weights
     second_weights = tf.Variable(
         tf.truncated_normal([N_NEURONS, NUM_LABELS]))
-    second_weights = tf.nn.dropout(second_weights, DROPOUT_KEEP_CHANCE)
+    second_weights = tf.nn.dropout(second_weights, dropout_chance)
     second_biases = tf.Variable(tf.zeros([NUM_LABELS]))
     apply_resize = tf.matmul(apply_relu, second_weights) + second_biases
 

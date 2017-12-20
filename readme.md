@@ -15,3 +15,8 @@ Thanks Google and Udacity for providing such a high quality content for free.
 ## Course Roadmap
 
 ![Course roadmap.](https://github.com/fmv1992/teach_yourself_deep_learning_with_tensorflow_and_udacity/blob/master/pictures/roadmap.png)
+
+## Good resources
+
+1. On **Neural Networks and Deep Learning**:
+    1. http://neuralnetworksanddeeplearning.com/chap3.html

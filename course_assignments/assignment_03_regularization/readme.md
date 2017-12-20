@@ -78,6 +78,39 @@ To:
 What happens is that the model does not train to its best. The weight values are "underdeveloped" and not correctly fit to the problem.
 
 # Problem 3
-# Problem 4
 
-http://neuralnetworksanddeeplearning.com/chap3.html
+With a `DROPOUT_KEEP_CHANCE = 0.3` one gets:
+
+    Minibatch loss at step 3000: 15.601969
+    Minibatch accuracy: 92.2%
+    Validation accuracy: 87.2%
+    Test accuracy: **93.0%**
+
+With a `DROPOUT_KEEP_CHANCE = 0.5` one gets:
+
+    Minibatch loss at step 3000: 15.504695
+    Minibatch accuracy: 92.2%
+    Validation accuracy: 87.3%
+    Test accuracy: 93.1%
+
+With a `DROPOUT_KEEP_CHANCE = 0.7` one gets:
+
+    Minibatch loss at step 3000: 15.456231
+    Minibatch accuracy: 89.8%
+    Validation accuracy: 87.4%
+    Test accuracy: 92.9%
+
+Compared to the NN of the assignment 02:
+
+    Test accuracy: 90.5%
+
+**There is significant improvement with using dropout (~3%).**
+
+Side note: I'm certain dropout is working because with `DROPOUT_KEEP_CHANCE = 1e-5` I get:
+
+    Minibatch loss at step 3000: 2151512832.000000
+    Minibatch accuracy: 45.3%
+    Validation accuracy: 38.3%
+    Test accuracy: 40.5%
+
+# Problem 4
