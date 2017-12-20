@@ -18,9 +18,6 @@
 # before proceeding further.
 from __future__ import print_function
 
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-
 import numpy as np
 import tensorflow as tf
 from six.moves import cPickle as pickle

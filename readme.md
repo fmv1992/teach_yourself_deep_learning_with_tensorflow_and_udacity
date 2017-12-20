@@ -20,3 +20,4 @@ Thanks Google and Udacity for providing such a high quality content for free.
 
 1. On **Neural Networks and Deep Learning**:
     1. http://neuralnetworksanddeeplearning.com/chap3.html
+    1. (Suggested by the course) For a closer look at the arithmetic behind convolution, and how it is affected by your choice of padding scheme, stride and other parameters, please refer to this illustrated guide: [V. Dumoulin and F. Visin, A guide to convolution arithmetic for deep learning](http://arxiv.org/pdf/1603.07285v1.pdf).
