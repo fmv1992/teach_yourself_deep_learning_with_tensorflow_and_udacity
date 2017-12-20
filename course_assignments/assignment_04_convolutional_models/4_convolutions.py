@@ -84,7 +84,7 @@ patch_size = 5  # For convolution.
 kernel_size = 2  # For maxpooling.
 depth = 16
 num_hidden = 64
-STRIDE_SIZE = 1  # Tested with values: 1, 2, 3, 4, 7.
+STRIDE_SIZE = 7  # Tested with values: 1, 2, 3, 4, 5.
 
 
 graph = tf.Graph()
@@ -144,13 +144,13 @@ with graph.as_default():
             print('data', data.shape)
             conv = tf.nn.conv2d(
                 data, layer1_weights, [
-                    1, 2, 2, 1], padding='SAME')
+                    1, STRIDE_SIZE, STRIDE_SIZE, 1], padding='SAME')
             hidden = tf.nn.relu(conv + layer1_biases)
             print('hid1', hidden.shape)
             print('conv1', conv.shape)
             conv = tf.nn.conv2d(
                 hidden, layer2_weights, [
-                    1, 2, 2, 1], padding='SAME')
+                    1, STRIDE_SIZE, STRIDE_SIZE, 1], padding='SAME')
             hidden = tf.nn.relu(conv + layer2_biases)
             print('hid2', hidden.shape)
             print('conv2', conv.shape)
