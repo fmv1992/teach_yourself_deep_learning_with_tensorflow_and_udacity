@@ -84,7 +84,8 @@ patch_size = 5  # For convolution.
 kernel_size = 2  # For maxpooling.
 depth = 16
 num_hidden = 64
-STRIDE_SIZE = 2
+STRIDE_SIZE = 1  # Tested with values: 1, 2, 3, 4, 7.
+
 
 graph = tf.Graph()
 
@@ -125,8 +126,8 @@ with graph.as_default():
     else:
         layer3_weights = tf.Variable(
             tf.truncated_normal(
-                [(IMAGE_SIZE // (2 * STRIDE_SIZE)) *
-                 (IMAGE_SIZE // (2 * STRIDE_SIZE)) * depth, num_hidden],
+                [(IMAGE_SIZE // (STRIDE_SIZE)) *
+                 (IMAGE_SIZE // (STRIDE_SIZE)) * depth, num_hidden],
                 stddev=0.1))
     layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
     layer4_weights = tf.Variable(tf.truncated_normal(
@@ -172,14 +173,14 @@ with graph.as_default():
             print('maxp1', maxp.shape)
             hidden = tf.nn.relu(maxp + layer1_biases)
             print('hid1', hidden.shape)
-            maxp = tf.nn.max_pool(
-                hidden,
-                [1, kernel_size, kernel_size, 1],
-                [1, STRIDE_SIZE, STRIDE_SIZE, 1],
-                padding='SAME')
-            print('maxp2', maxp.shape)
-            hidden = tf.nn.relu(maxp + layer2_biases)
-            print('hid2', hidden.shape)
+            # maxp = tf.nn.max_pool(
+            #     hidden,
+            #     [1, kernel_size, kernel_size, 1],
+            #     [1, STRIDE_SIZE, STRIDE_SIZE, 1],
+            #     padding='SAME')
+            # print('maxp2', maxp.shape)
+            # hidden = tf.nn.relu(maxp + layer2_biases)
+            # print('hid2', hidden.shape)
             shape = hidden.get_shape().as_list()
             print(shape)
             reshape = tf.reshape(
