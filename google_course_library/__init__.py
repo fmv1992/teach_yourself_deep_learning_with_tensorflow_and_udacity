@@ -30,6 +30,12 @@ def plot_timed_sample_from_array(arr, n=10, duration_ms=1000):
         plt.close('all')
 
 
+# Define program constants.
+train_size = 10000
+validation_size = 1000
+test_size = 1000
+
+# Define path constants.
 ROOT_PATH = get_root_dir_based_on_dotgit(__file__)
 DATA_PATH = os.path.join(ROOT_PATH, 'data')
 

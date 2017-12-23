@@ -45,6 +45,11 @@ import google_course_library as gcl
 
 import logit_classifier
 
+# Define program constants.
+gcl.train_size = 10000
+gcl.validation_size = 1000
+gcl.test_size = 1000
+
 # Config the matplotlib backend as plotting inline in IPython
 # get_ipython().magic('matplotlib inline')
 
@@ -270,8 +275,8 @@ check_dictionary_is_balanced(train_dict)
 
 # Merge and prune the training data as needed. Depending on your computer
 # setup, you might not be able to fit it all in memory, and you can tune
-# `TRAIN_SIZE` as needed. The labels will be stored into a separate array of
-# integers 0 through 9.
+# `gcl.train_size` as needed. The labels will be stored into a separate array
+# of integers 0 through 9.
 #
 # Also create a validation dataset for hyperparameter tuning.
 
@@ -285,12 +290,12 @@ def make_arrays(nb_rows, img_size):
     return dataset, labels
 
 
-def merge_datasets(pickle_files, TRAIN_SIZE, VALID_SIZE=0):
+def merge_datasets(pickle_files, train_size, valid_size=0):
     num_classes = len(pickle_files)
-    valid_dataset, valid_labels = make_arrays(VALID_SIZE, IMAGE_SIZE)
-    train_dataset, train_labels = make_arrays(TRAIN_SIZE, IMAGE_SIZE)
-    vsize_per_class = VALID_SIZE // num_classes
-    tsize_per_class = TRAIN_SIZE // num_classes
+    valid_dataset, valid_labels = make_arrays(valid_size, IMAGE_SIZE)
+    train_dataset, train_labels = make_arrays(train_size, IMAGE_SIZE)
+    vsize_per_class = valid_size // num_classes
+    tsize_per_class = train_size // num_classes
 
     start_v, start_t = 0, 0
     end_v, end_t = vsize_per_class, tsize_per_class
@@ -321,14 +326,11 @@ def merge_datasets(pickle_files, TRAIN_SIZE, VALID_SIZE=0):
     return valid_dataset, valid_labels, train_dataset, train_labels
 
 
-TRAIN_SIZE = 100000
-VALID_SIZE = 10000
-TEST_SIZE = 10000
 
 valid_dataset, valid_labels, train_dataset, train_labels = merge_datasets(
-    train_datasets, TRAIN_SIZE, VALID_SIZE)
+    train_datasets, gcl.train_size, gcl.validation_size)
 _, _, test_dataset, test_labels = merge_datasets(
-    test_datasets, TEST_SIZE)
+    test_datasets, gcl.test_size)
 
 print('Training:', train_dataset.shape, train_labels.shape)
 print('Validation:', valid_dataset.shape, valid_labels.shape)
@@ -435,7 +437,7 @@ for combination in (1, 2, 3):
 #
 # ---
 
-# You may want to change the TRAIN_SIZE, VALID_SIZE, TEST_SIZE constants to
+# You may want to change the gcl.train_size, gcl.validation_size, gcl.test_size constants to
 # train faster and check code correctness.
 
 logit_classifier.main(train_dataset, valid_dataset, train_labels, valid_labels)
