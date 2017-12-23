@@ -21,7 +21,10 @@
 from __future__ import print_function
 
 import matplotlib
-matplotlib.use('Qt5Agg')
+try:
+    matplotlib.use('Qt5Agg')
+except ValueError:
+    matplotlib.use('Qt4Agg')
 
 import glob
 import itertools

@@ -1,12 +1,14 @@
 SHELL := /bin/bash
 VE_ROOT := /tmp
+PY36_ROOT := /tmp/py36
+PY36_PREFIX := /tmp/config_prefix
 
 install: install_virtual_environment install_pip_packages
 	:
 
 install_virtual_environment:
 	sudo pip3 install virtualenv
-	virtualenv $(VE_ROOT)/google_dl
+	virtualenv --system-site-packages --python=$(PY36_PREFIX)/bin/python3.6 $(VE_ROOT)/google_dl
 
 install_pip_packages:
 	# make[1]: source: Command not found (ubuntu uses dash, not sh in /bin/sh)...

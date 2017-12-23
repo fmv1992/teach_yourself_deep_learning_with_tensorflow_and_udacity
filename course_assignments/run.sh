@@ -1,6 +1,6 @@
 #! /bin/bash
 
-
+# Important: it has to be the first line.
 cd $(dirname $0)
 
 export PYTHON3_VE=$VE_ROOT/google_dl/bin/python3
