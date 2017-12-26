@@ -1,10 +1,11 @@
 # Build vim from source with python3 support and execute tests.
 branches:
   only:
-    - dev
+    - travis
 before_install:
     # Change the default shell for makefiles.
     - export SHELL=/bin/bash
+    - export DISPLAY=:0.0
 
     # Change from dash to bash.
     - sudo rm /bin/sh

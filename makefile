@@ -22,7 +22,7 @@ $(PY36_PREFIX)/bin/python3.6:
 	mkdir $(PY36_ROOT) $(PY36_PREFIX)
 	cd $(PY36_ROOT) && wget -O - www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz | tar -xJf -
 	# In ./configure the '--enable-optimizations' flags may be useful but it increases compilation time.
-	cd $(PY36_ROOT)/Python-3.6.4/ && ./configure --prefix=$(PY36_PREFIX) --enable-optimizations
+	cd $(PY36_ROOT)/Python-3.6.4/ && ./configure --prefix=$(PY36_PREFIX)
 	cd $(PY36_ROOT)/Python-3.6.4/ && make -j 3
 	cd $(PY36_ROOT)/Python-3.6.4/ && make altinstall
 
