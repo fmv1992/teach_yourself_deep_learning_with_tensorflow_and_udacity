@@ -2,10 +2,10 @@
 branches:
   only:
     - travis
+
 before_install:
     # Change the default shell for makefiles.
     - export SHELL=/bin/bash
-    - export DISPLAY=:0.0
 
     # Change from dash to bash.
     - sudo rm /bin/sh
@@ -21,8 +21,11 @@ before_install:
     - sudo apt-get install libtcmalloc-minimal4
     - export LD_PRELOAD="/usr/lib/libtcmalloc_minimal.so.4"
 
+before_script:
+    # Start X interface.
+    - export DISPLAY=:0.0
+    - "sh -e /etc/init.d/xvfb start"
+    - sleep 5 # give xvfb some time to start
 
 install: SHELL=/bin/bash make install
 script: SHELL=/bin/bash make run
-
-
