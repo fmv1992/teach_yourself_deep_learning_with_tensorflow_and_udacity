@@ -1,6 +1,10 @@
 #! /bin/bash
 
+# Important: it has to be the first line.
+cd $(dirname $0)
+
 # Add 'google_course_library' to python path.
 export PYTHONPATH=$PYTHONPATH:$(readlink -f ../../)
+echo $PYTHONPATH
 
-../../virtual_environment/google_dl/bin/python3 ./3_regularization.py
+eval "$PYTHON3_VE ./3_regularization.py"
