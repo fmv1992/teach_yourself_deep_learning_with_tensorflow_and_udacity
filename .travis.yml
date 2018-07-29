@@ -2,6 +2,9 @@
 branches:
   only:
     - dev
+    - travis
+python:
+    - "3.6"
 before_install:
     # Change the default shell for makefiles.
     - export SHELL=/bin/bash
@@ -20,8 +23,5 @@ before_install:
     - sudo apt-get install libtcmalloc-minimal4
     - export LD_PRELOAD="/usr/lib/libtcmalloc_minimal.so.4"
 
-
 install: SHELL=/bin/bash make install
 script: SHELL=/bin/bash make run
-
-
